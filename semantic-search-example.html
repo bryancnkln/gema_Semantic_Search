@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semantic Search Bar - GEMA Powered</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #12121e 0%, #1e1e2e 100%);
+      color: #d4d4d4;
+      padding: 2rem;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      color: #8894a4;
+      text-align: center;
+      margin-bottom: 0.5rem;
+      font-size: 2rem;
+    }
+
+    .subtitle {
+      color: #98a0b2;
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 1rem;
+    }
+
+    .smoothing-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #8894a4, #a0a8c0);
+      color: #12121e;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin: 0 0.5rem;
+      box-shadow: 0 2px 8px rgba(136, 148, 164, 0.3);
+      animation: pulse-glow 2s infinite;
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 2px 8px rgba(136, 148, 164, 0.3); }
+      50% { box-shadow: 0 4px 16px rgba(136, 148, 164, 0.6); }
+    }
+
+    .demo-section {
+      background: rgba(25, 28, 38, 0.95);
+      border: 1px solid #3a3a4a;
+      border-radius: 12px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .demo-section h2 {
+      color: #8894a4;
+      margin-bottom: 1rem;
+      font-size: 1.3rem;
+    }
+
+    .command-examples {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: rgba(30, 30, 40, 0.7);
+      border-radius: 8px;
+      border: 1px solid #3a3a4a;
+    }
+
+    .command-examples h3 {
+      color: #a0a8c0;
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .example-query {
+      display: inline-block;
+      padding: 0.4rem 0.8rem;
+      margin: 0.3rem;
+      background: rgba(136, 148, 164, 0.1);
+      border: 1px solid #3a3a4a;
+      border-radius: 4px;
+      color: #98a0b2;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .example-query:hover {
+      background: rgba(136, 148, 164, 0.2);
+      border-color: #8894a4;
+    }
+
+    .status {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: rgba(30, 30, 40, 0.7);
+      border-radius: 8px;
+      border: 1px solid #3a3a4a;
+      font-size: 0.9rem;
+    }
+
+    .status-item {
+      margin: 0.5rem 0;
+      color: #98a0b2;
+    }
+
+    .status-label {
+      color: #70798c;
+      font-weight: 500;
+    }
+
+    .status-value {
+      color: #a0a8c0;
+      margin-left: 0.5rem;
+    }
+
+    code {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      color: #a0a8c0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧠 Semantic Search Bar</h1>
+    <p class="subtitle">GEMA-powered intelligent command understanding</p>
+
+    <div class="demo-section">
+      <h2>Try it out:</h2>
+      <p style="color: #98a0b2; margin-bottom: 1rem;">
+        Type a command or query. The system will detect the semantic intent using GEMA-smoothed momentum.
+      </p>
+      
+      <input 
+        type="text" 
+        id="semanticSearchInput" 
+        placeholder="Type a command... (e.g., 'search for files', 'navigate to home', 'analyze data')"
+        autocomplete="off"
+      >
+      
+      <div class="command-examples">
+        <h3>Example queries:</h3>
+        <span class="example-query" onclick="tryExample('search for documents')">search for documents</span>
+        <span class="example-query" onclick="tryExample('navigate to settings')">navigate to settings</span>
+        <span class="example-query" onclick="tryExample('execute backup')">execute backup</span>
+        <span class="example-query" onclick="tryExample('help with commands')">help with commands</span>
+        <span class="example-query" onclick="tryExample('find user data')">find user data</span>
+        <span class="example-query" onclick="tryExample('go to dashboard')">go to dashboard</span>
+        <span class="example-query" onclick="tryExample('run process')">run process</span>
+        <span class="example-query" onclick="tryExample('show help')">show help</span>
+      </div>
+
+      <div class="status" id="status">
+        <div class="status-item">
+          <span class="status-label">Status:</span>
+          <span class="status-value" id="statusValue">Ready</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Last Command:</span>
+          <span class="status-value" id="lastCommand">-</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Confidence:</span>
+          <span class="status-value" id="confidence">-</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Iterations:</span>
+          <span class="status-value" id="iterations">0</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Integration Example</h2>
+      <p style="color: #98a0b2; margin-bottom: 1rem;">
+        This module can be plugged into any input field. Here's how:
+      </p>
+      <pre style="background: rgba(0, 0, 0, 0.3); padding: 1rem; border-radius: 8px; overflow-x: auto; color: #98a0b2; font-size: 0.9rem;"><code>// Simple usage
+const searchBar = new SemanticSearchBar(
+  document.getElementById('myInput'),
+  {
+    onCommandDetected: (command, confidence, query) => {
+      console.log(`Command: ${command} (${confidence})`);
+    }
+  }
+);
+
+// Or use the helper function
+const searchBar = initSemanticSearch('myInput');</code></pre>
+    </div>
+
+    <div class="demo-section">
+      <h2>Features</h2>
+      <ul style="color: #98a0b2; line-height: 1.8; padding-left: 1.5rem;">
+        <li><strong style="color: #a0a8c0;">Pre-trained Centroids:</strong> Load PQ-trained semantic centroids for better accuracy</li>
+        <li><strong style="color: #a0a8c0;">GEMA Smoothing:</strong> Gated Exponential Moving Average for smooth momentum updates</li>
+        <li><strong style="color: #a0a8c0;">State Initialization:</strong> Proper initialization of all momentum, gate, and embedding states</li>
+        <li><strong style="color: #a0a8c0;">Advanced Controls:</strong> Adjust momentum alpha range (min/max) and toggle gated momentum coupling</li>
+        <li><strong style="color: #a0a8c0;">Catastrophic Forgetting Prevention:</strong> Contrastive learning to prevent drift</li>
+        <li><strong style="color: #a0a8c0;">Online Learning:</strong> Centroids adapt based on user interactions</li>
+        <li><strong style="color: #a0a8c0;">Plug & Play:</strong> Works with any input field</li>
+      </ul>
+    </div>
+
+    <div class="demo-section">
+      <h2>Using Pre-trained Centroids</h2>
+      <p style="color: #98a0b2; margin-bottom: 1rem;">
+        To use PQ-trained centroids, follow these steps:
+      </p>
+      <ol style="color: #98a0b2; line-height: 1.8; padding-left: 1.5rem; margin-bottom: 1rem;">
+        <li>Train PQ codebooks: <code>python train_pq_codebook.py</code></li>
+        <li>Export to JSON: <code>python export_centroids_to_json.py</code></li>
+        <li>Place <code>centroids.json</code> in the same directory as this HTML file</li>
+        <li>Refresh this page - centroids will load automatically</li>
+      </ol>
+      <p style="color: #98a0b2; font-size: 0.9rem; padding: 0.8rem; background: rgba(30, 30, 40, 0.7); border-radius: 6px; border: 1px solid #3a3a4a;">
+        <strong style="color: #a0a8c0;">Note:</strong> If <code>centroids.json</code> is not found, the system will use random initialization. 
+        Pre-trained centroids provide better semantic matching accuracy.
+      </p>
+    </div>
+  </div>
+
+  <script src="tempfile.js"></script>
+  <script type="module">
+    let searchBar;
+
+    async function tryExample(query) {
+      const input = document.getElementById('semanticSearchInput');
+      input.value = query;
+      input.focus();
+      if (searchBar) {
+        await searchBar.handleQuery(query);
+      }
+    }
+    
+    // Make tryExample available globally
+    window.tryExample = tryExample;
+
+    // Initialize when page loads
+    window.addEventListener('DOMContentLoaded', async () => {
+      const input = document.getElementById('semanticSearchInput');
+      const statusValue = document.getElementById('statusValue');
+      
+      try {
+        // Step 1: Initialize Transformers.js embedding model
+        statusValue.textContent = 'Loading embedding model (all-MiniLM-L6-v2)...';
+        console.log('📦 Loading embedding model: all-MiniLM-L6-v2');
+        console.log('   First load: ~50MB download, then cached for future use');
+        
+        await SemanticSearchBar.initializeEmbeddings('Xenova/all-MiniLM-L6-v2');
+        console.log('✅ Embedding model loaded successfully!');
+        
+        // Step 2: Load pre-trained centroids
+        statusValue.textContent = 'Loading trained centroids...';
+        let preTrainedCentroids = null;
+        
+        try {
+          const response = await fetch('./centroids.json', { cache: 'no-store' });
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const data = await response.json();
+          // Accept either full object or nested { centroids }
+          preTrainedCentroids = data.centroids ?? data;
+          console.log('✅ Loaded pre-trained centroids (384-dim, all-MiniLM-L6-v2)');
+        } catch (error) {
+          console.error('❌ Could not load centroids.json:', error);
+          // Continue with random init instead of hard failing
+          preTrainedCentroids = null;
+          statusValue.textContent = 'Ready (Random Init - centroids.json not found)';
+        }
+        
+        // Step 3: Initialize search bar with real embeddings
+        statusValue.textContent = 'Initializing search bar...';
+        searchBar = new SemanticSearchBar(input, {
+          embeddingSize: 384,  // all-MiniLM-L6-v2 dimension
+          preTrainedCentroids: preTrainedCentroids,
+          
+          onCommandDetected: (command, confidence, query) => {
+            document.getElementById('statusValue').textContent = 'Command Detected';
+            document.getElementById('lastCommand').textContent = command;
+            document.getElementById('confidence').textContent = `${(confidence * 100).toFixed(1)}%`;
+            document.getElementById('iterations').textContent = searchBar.iteration;
+            
+            console.log(`✅ Detected: ${command} (${(confidence * 100).toFixed(1)}%) - "${query}"`);
+          },
+          
+          onConfidenceChange: (confidences) => {
+            // Log all confidence scores for debugging
+            console.log('Confidence scores:', confidences.map(c => 
+              `${c.id}: ${(c.confidence * 100).toFixed(1)}%`
+            ).join(', '));
+          }
+        });
+
+        // Enable learning mode (fine-tune centroids based on user feedback)
+        searchBar.enableLearning();
+
+        // Ready!
+        statusValue.textContent = '✅ Ready (Production: all-MiniLM-L6-v2)';
+        console.log('🎉 Semantic Search Bar ready with real embeddings!');
+        console.log('   Model: all-MiniLM-L6-v2 (384-dim)');
+        console.log('   Trained centroids loaded');
+        console.log('   Smooth convergence enabled (KeyStoneH)');
+        console.log('   Online learning enabled');
+        
+      } catch (error) {
+        console.error('❌ Initialization failed:', error);
+        statusValue.textContent = `❌ Error: ${error.message}`;
+        statusValue.style.color = '#d46f6f';
+        
+        // Show error details in the UI
+        const errorDiv = document.createElement('div');
+        errorDiv.style.cssText = 'background: rgba(212, 111, 111, 0.1); padding: 1rem; border-radius: 8px; margin-top: 1rem; border: 1px solid #d46f6f; color: #d46f6f;';
+        errorDiv.innerHTML = `
+          <strong>Initialization Error:</strong><br>
+          ${error.message}<br><br>
+          <small>Check the browser console for more details.</small>
+        `;
+        document.querySelector('.demo-section').appendChild(errorDiv);
+      }
+    });
+  </script>
+</body>
+</html>
+
